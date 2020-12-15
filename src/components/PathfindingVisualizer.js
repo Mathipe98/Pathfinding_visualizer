@@ -1,13 +1,14 @@
 import React, {Component} from "react";
 import Node from "./Node";
 import "./PathfindingVisualizer.css";
+import dijkstraSearch from "../algorithms/dijkstra";
 
 
 export default class PathfindingVisualizer extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            nodes: [],
+            grid: [],
         };
     }
 
@@ -16,15 +17,57 @@ export default class PathfindingVisualizer extends Component {
     the component, this function will only run once.
     */
     componentDidMount() {
-        const nodes = createGrid();
+        const grid = createGrid();
+        //console.log(`Dijkstra result: ${shortestPath}`)
         //State of the grid will be the list of nodes in the grid
-        this.setState({nodes});
+        this.setState({grid});
+    }
+
+    visualizeDijkstras() {
+        console.log('Starting visualizing');
+        const {grid} = this.state;
+        const startNode = grid[START_ROW][START_COL];
+        const finishNode = grid[FINISH_ROW][FINISH_COL];
+        const visitedNoderInOrder = dijkstraSearch(grid, startNode, finishNode);
+        visitedNoderInOrder.forEach(node => {
+            console.log(`(${node.row}, ${node.col})`);
+        });
+        console.log(visitedNoderInOrder);
+        this.animateDijkstras(visitedNoderInOrder);
+    }
+
+    /*
+        The way we animate the pathfinder-algorithm, is to have
+        an array of visited nodes, and create a copy of the existing
+        grid every time we iterate through a visited node.
+        This is as an external function that sets a timeout every time
+        a node is iterated, instead of being taken care of inside of
+        the render function. We iterate through all visited nodes, and
+        for each node, we create a copy grid, and a copy node.
+        We replace the existing node in the copy grid, with the
+        copy node that has updated its isVisited-state.
+        We pass in the copy grid as the new state of the React-component,
+        and set a timeout. Therefore, the state will update itself with
+        an interval of the timeout-value. 
+    */
+    animateDijkstras(visitedNodesInOrder) {
+        for (let i = 0; i < visitedNodesInOrder.length; i++) {
+            setTimeout(() => {
+                const node = visitedNodesInOrder[i];
+                const copyGrid = this.state.grid.slice();
+                const copyNode = {
+                    ...node,
+                    isVisited: true,
+                };
+                copyGrid[node.row][node.col] = copyNode;
+                this.setState({grid: copyGrid});
+            }, 20 * i);
+        }
     }
 
     render() {
         //Extract list of nodes currently in the grid
-        const {nodes} = this.state;
-
+        const {grid} = this.state;
         /*
         Inside the return function, we will iterate through all rows, and for each row
         we will create a <Node></Node> object for each column.
@@ -32,30 +75,32 @@ export default class PathfindingVisualizer extends Component {
         the nodes-array. Keep note of indexes to assess position of each node
         */
         return (
-            <div className="grid">
-                {nodes.map((row, rowIndex) => {
-                    return (
-                    <div key={rowIndex} className="row">
-                        {row.map((node, nodeIndex) => {
-                            //extract isStart and isFinish from node object in map-function
-                            const {i, j, isStart, isFinish, isVisited, distance, predecessor} = node;
-                            return (
-                                <Node
-                                key={nodeIndex}
-                                i={i}
-                                j={j}
-                                isStart={isStart}
-                                isFinish={isFinish}
-                                isVisited={isVisited}
-                                distance={distance}
-                                predecessor={predecessor}
-                                test={"foo"}></Node>
-                                );
-                        })}
-                    </div>
-                    );
-                })}
-            </div>
+            <>
+                <button onClick={() => this.visualizeDijkstras()}>
+                    Visualize Dijkstra's Algorithm
+                </button>
+                <div className="grid">
+                    {grid.map((row, rowIndex) => {
+                        return (
+                        <div key={rowIndex} className="row">
+                            {row.map((node, nodeIndex) => {
+                                //extract isStart and isFinish from node object in map-function
+                                const {row, col, isStart, isFinish, isVisited} = node;
+                                return (
+                                    <Node
+                                    key={nodeIndex}
+                                    row={row}
+                                    col={col}
+                                    isStart={isStart}
+                                    isFinish={isFinish}
+                                    isVisited={isVisited}></Node>
+                                    );
+                            })}
+                        </div>
+                        );
+                    })}
+                </div>
+            </>
         );
     }
 }
@@ -64,35 +109,39 @@ export default class PathfindingVisualizer extends Component {
 const rows = 20;
 const cols = 50;
 const START_ROW = 10;
-const START_COL = 5;
+const START_COL = 20;
 const FINISH_ROW = 10;
-const FINISH_COL = 45;
+const FINISH_COL = 35;
+
 
 //Helper function for creating an array of arrays with nodes
 function createGrid() {
-    const nodes = [];
+    const grid = [];
     for (let i = 0; i < rows; i++) {
         const currentRow = [];
         for (let j = 0; j < cols; j++) {
             const currentNode = createNode(i, j);
             currentRow.push(currentNode);
         }
-        nodes.push(currentRow);
+        grid.push(currentRow);
     }
-    return nodes;
+    return grid;
 }
 
 //Helper function for creating a node with attributes for usage in pathfinding-algorithms
-function createNode(i, j) {
+function createNode(row, col) {
+    const isStart = (row === START_ROW && col === START_COL);
     const currentNode = {
-        i,
-        j,
-        isStart: (i === START_ROW && j === START_COL),
-        isFinish: (i === FINISH_ROW && j === FINISH_COL),
-        isVisited: this.isStart,
+        row,
+        col,
+        isStart: isStart,
+        isFinish: (row === FINISH_ROW && col === FINISH_COL),
+        isVisited: false,
         isWall: false,
-        distance: Infinity,
+        distance: isStart ? 0 : Infinity,
+        cost: 1,
         predecessor: null,
+        checked: false,
     };
     return currentNode;
 }

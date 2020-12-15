@@ -8,34 +8,97 @@ highlight the final path.
 */
 
 
-function dijkstraSearch(grid, startNode, finishNode) {
+export default function dijkstraSearch(grid, startNode, finishNode) {
 
-    const allNodes = getAllNodes(grid);
+    const queue = getAllNodes(grid);
+    const visitedNodesInOrder = [];
+    
+    // equivalent to (queue && queue.length)
+    while (queue?.length) {
 
+        
+        // Because of the sorting, this node is guaranteed to have the lowest distance
+        const currentNode = queue.shift();
+        
+        // Something has gone wrong if we end up here
+        if (currentNode.distance === Infinity) {
+            throw Error("Something has gone wrong in Dijkstra-search.");
+        }
+        // Break if we have found the target (might delete later to calculate all-to-all)
+        if (currentNode === finishNode) {
+            return visitedNodesInOrder;
+        }
+        
+        // Get all neighbours of current node
+        const currentNeighbours = getNeighbours(grid, currentNode);
+        visitedNodesInOrder.push(currentNode);
+        // Iterate through neighbours and relax the edges
+        for (let neighbour of currentNeighbours) {
+            relax(currentNode, neighbour);
+        }
+        queue.sort((n1, n2) => n1.distance - n2.distance);
+    }
+
+    /*
+    Reconstruct the shortest path if we don't want in order
+    const path = [];
+    let checkNode = finishNode;
+    while (checkNode.predecessor != null) {
+        path.push(checkNode);
+        checkNode = checkNode.predecessor;
+    }
+    console.log(`Path is: ${path}`);
+    return path;
+    */
 }
 
-function getNeighbours(grid, node, maxRowIndex, maxColIndex) {
-    const {i, j} = node;
+function relax(currentNode, neighbour) {
+    const tempDistance = currentNode.distance + neighbour.cost;
+        if (tempDistance < neighbour.distance) {
+            neighbour.distance = tempDistance;
+            neighbour.predecessor = currentNode;
+        }
+}
 
-    const topNeighbour = (i > 0) ? grid[i-1][j] : null;
-    const bottomNeighbour = (i < maxRowIndex) ? grid[i+1][j] : null;
-    const rightNeighbour = (j < maxColIndex) ? grid[i][j+1] : null;
-    const leftNeighbour = (j > 0) ? grid[i][j-1] : null;
-    //List in order of what nodes will be searched first: top, right, bottom, left
+
+function getNeighbours(grid, node) {
+    const {row, col} = node;
+    const maxRowIndex = grid.length - 1;
+    const maxColIndex = grid[0].length - 1;
+
+    const topNeighbour = (row > 0) ? grid[row-1][col] : null;
+    const bottomNeighbour = (row < maxRowIndex) ? grid[row+1][col] : null;
+    const rightNeighbour = (col < maxColIndex) ? grid[row][col+1] : null;
+    const leftNeighbour = (col > 0) ? grid[row][col-1] : null;
+    // List in order of what nodes will be searched first: top, right, bottom, left
     const neighbourList = [topNeighbour, rightNeighbour, bottomNeighbour, leftNeighbour];
-    //Filter out null-nodes and visitedNodes
-    return neighbourList.filter(neighbour => {
-        return (neighbour !== null || !neighbour.isVisited);
-    });
+    // Filter out null-nodes and visitedNodes
+    const result = neighbourList
+        .filter(checkNode)
+        .sort((n1, n2) => n1.distance - n2.distance);
+    return result;
+    
+}
+
+function checkNode(node) {
+    if (node === null) {
+        return false;
+    }
+    if (node.isVisited) {
+        return false;
+    }
+    return true;
 }
 
 function getAllNodes(grid) {
-    //We don't need a 2D array now, we can make due with 1D
+    // We don't need a 2D array now, we can make due with 1D
     const nodeList = [];
-    for (let row of grid) {
-        for (let col of row) {
-            grid.push(col);
+    for (let i = 0; i < grid.length; i++) {
+        const row = grid[i];
+        for (let j = 0; j < row.length; j++) {
+            nodeList.push(row[j]);
         }
     }
-    return nodeList;
+    const result = nodeList.sort((n1, n2) => (n1.distance > n2.distance) ? 1 : -1);
+    return result;
 }

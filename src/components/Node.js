@@ -9,13 +9,42 @@ export default class Node extends Component {
     }
 
     render() {
-        //The same way as in PathfindingVisualizer, extract isStart+isFinish from props-object.
-        const {isStart, isFinish} = this.props;
-        const startOrFinishNameCheck = isStart ? "node-start" : isFinish ? "node-finish" : "";
-        const row = this.props.i;
-        const col = this.props.j;
+        //The same way as in PathfindingVisualizer, extract values from props
+        const {
+            row,
+            col,
+            isStart,
+            isFinish,
+            isVisited,
+            onMouseDown,
+            onMouseEnter,
+            onMouseUp,
+            isWall,
+        } = this.props;
+
+        const extraNameCheck = isStart
+            ? "node-start"
+            : isFinish
+            ? "node-finish"
+            : isVisited
+            ? "node-visited"
+            : "";
+        /*
+            We pass functions into the props for handling mouse-events,
+            and add these event-listener functions to the Node-component.
+            Each individual node will simply have a function to handle
+            a mouseDown, mouseEnter, or mouseUp event, such that all of them
+            can use their individual row-col values.
+        */
         return (
-            <div className={`node ${startOrFinishNameCheck}`}></div>
+            <div
+            id={`node-${row}-${col}`}
+            className={`node ${extraNameCheck}`}
+            isWall={isWall}
+            onMouseDown={() => onMouseDown(row, col)}
+            onMouseEnter={() => onMouseEnter(row, col)}
+            onMouseUp={() => onMouseUp()}
+            ></div>
         );
     }
 }
