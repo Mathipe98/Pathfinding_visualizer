@@ -4,14 +4,10 @@ The main idea in these algorithms will be to first implement the functions that
 provide the actual solution, and then implement functions that will visualize
 these solutions by altering the classname of each explored node in order to
 colorize which nodes are in progress, which ones are visited, and ultimately 
-highlight the final path. The animation will be taken care of in
-PathfindingVisualizer, while we provide the actual backend of the algorithms here.
+highlight the final path.
 */
 
-// Dijkstra's algorithm: takes in a grid of nodes, along with start and finish,
-// and checks two nodes u,v if it's cheaper/more efficient to move
-// from node u to v instead of the path v already has.
-// Also updates each node with a pointer to its predecessor.
+
 export function dijkstraSearch(grid, startNode, finishNode) {
 
     const queue = getAllNodes(grid);
@@ -47,12 +43,20 @@ export function dijkstraSearch(grid, startNode, finishNode) {
         }
         queue.sort((n1, n2) => n1.distance - n2.distance);
     }
+
+    /*
+    Reconstruct the shortest path if we don't want in order
+    const path = [];
+    let checkNode = finishNode;
+    while (checkNode.predecessor != null) {
+        path.push(checkNode);
+        checkNode = checkNode.predecessor;
+    }
+    console.log(`Path is: ${path}`);
+    return path;
+    */
 }
 
-// Relax an edge between u and v:
-// if (u.distance + cost(go from u to v) < v.distance)
-// => v.distance = u.distance cost(go from u to v);
-// => v.predecessor = u;
 function relax(currentNode, neighbour) {
     const tempDistance = currentNode.distance + neighbour.cost;
         if (tempDistance < neighbour.distance) {
@@ -71,19 +75,16 @@ function getNeighbours(grid, node) {
     const bottomNeighbour = (row < maxRowIndex) ? grid[row+1][col] : null;
     const rightNeighbour = (col < maxColIndex) ? grid[row][col+1] : null;
     const leftNeighbour = (col > 0) ? grid[row][col-1] : null;
-
     // List in order of what nodes will be searched first: top, right, bottom, left
     const neighbourList = [topNeighbour, rightNeighbour, bottomNeighbour, leftNeighbour];
-
-    // Filter out null-nodes, visited nodes, wall nodes, and sort the list
-    // where nodes with minimal distance will appear first
+    // Filter out null-nodes and visitedNodes
     const result = neighbourList
         .filter(checkNode)
         .sort((n1, n2) => n1.distance - n2.distance);
     return result;
+    
 }
 
-// Check if a node is null, visited, or a wall
 function checkNode(node) {
     if (node === null) {
         return false;
@@ -97,9 +98,8 @@ function checkNode(node) {
     return true;
 }
 
-// Returns a sorted list of all nodes in the grid where the sorting
-// is based on the distance of each node
 function getAllNodes(grid) {
+    // We don't need a 2D array now, we can make due with 1D
     const nodeList = [];
     for (let i = 0; i < grid.length; i++) {
         const row = grid[i];

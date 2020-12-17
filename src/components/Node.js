@@ -15,17 +15,19 @@ export default class Node extends Component {
             col,
             isStart,
             isFinish,
+            isWall,
             isVisited,
             onMouseDown,
             onMouseEnter,
             onMouseUp,
-            isWall,
         } = this.props;
 
         const extraNameCheck = isStart
             ? "node-start"
             : isFinish
             ? "node-finish"
+            : isWall
+            ? "node-wall"
             : isVisited
             ? "node-visited"
             : "";

@@ -1,4 +1,8 @@
 .grid {
-  margin: 100px 80px;
-  margin-top: 50px;
+  margin: 120px 0px 0px;
+}
+
+.row {
+  margin: 0;
+  height: 24px;
 }
