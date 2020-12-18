@@ -38,6 +38,7 @@ export default class PathfindingVisualizer extends Component {
     // Function called when a button is clicked to visualize the result of
     // the pathfinding algorithm. Performed by calling to other helper-functions
     visualizeDijkstras() {
+        if (!this.state.canChangeGrid) return;
         const {grid} = this.state;
         const startNode = grid[START_ROW][START_COL];
         const finishNode = grid[FINISH_ROW][FINISH_COL];
@@ -153,6 +154,8 @@ export default class PathfindingVisualizer extends Component {
 
 
     render() {
+        console.log(document.getElementById("body").offsetWidth);
+        console.log(document.getElementById("body").offsetHeight);
         //Extract list of nodes currently in the grid
         const {grid, mousePressed} = this.state;
         /*

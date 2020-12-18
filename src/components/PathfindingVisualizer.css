@@ -5,4 +5,5 @@
 .row {
   margin: 0;
   height: 24px;
+  overflow: hidden;
 }
