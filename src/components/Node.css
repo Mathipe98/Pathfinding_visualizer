@@ -1,10 +1,39 @@
-/*15.6in laptop with resolution 1920x1080 will have 
+/* 15.6" laptop with resolution 1920x1080 will have
 width = 1280px and height = 576.
 These are the lowest max-width/max-height values that
 adjust for this. I have no idea why height has to be 578,
-and why the browser renders in 128x576 instead of 1920x1080
-makes absolutely no sense. But oh well */
-@media (max-width: 1280px) and (max-height: 578px) {
+and why the browser renders in 1280x576 instead of 1920x1080
+makes absolutely no sense. But oh well.
+I set the height to be 590px just for good measure, although
+the lowest value that will work is 578px.
+ */
+@media (max-width: 1280px) and (max-height: 590px) {
+  .node {
+    width: 23px;
+    height: 23px;
+    border: 1px solid rgb(175, 216, 248);
+    display: inline-block;
+    margin: 0;
+  }
+}
+
+/*
+  For some extremely stupid reason, with a 27" monitor with 1920x1080
+  resolution, the body has a max-height of 937 pixels. So this is for
+  rendering on a 27" 1920x1080 monitor.
+  Set the value to 940 just so it looks prettier.
+*/
+@media (max-width: 1920px) and (max-height: 940px) {
+  .node {
+    width: 23px;
+    height: 23px;
+    border: 1px solid rgb(175, 216, 248);
+    display: inline-block;
+    margin: 0;
+  }
+}
+
+@media (max-width: 2048px) and (max-height: 1100px) {
   .node {
     width: 23px;
     height: 23px;

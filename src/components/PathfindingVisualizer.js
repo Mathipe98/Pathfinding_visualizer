@@ -2,11 +2,14 @@ import React, {Component} from "react";
 import Node from "./Node";
 import "./PathfindingVisualizer.css";
 import {dijkstraSearch, getShortestPath} from "../algorithms/dijkstra.js";
-import { act } from "react-dom/test-utils";
+//import { act } from "react-dom/test-utils";
 
-
-const rows = 18;
-const cols = 53;
+const body = document.getElementById("body");
+const rowsAndCols = calculateRowsAndCols(body.offsetWidth, body.offsetHeight);
+console.log(`Body width: ${body.offsetWidth}. Body height: ${body.offsetHeight}`);
+console.log(`Number of rows: ${rowsAndCols[0]}. Number of cols: ${rowsAndCols[1]}`);
+const rows = rowsAndCols[0];
+const cols = rowsAndCols[1];
 
 const START_ROW = 0;
 const START_COL = 0;
@@ -104,7 +107,9 @@ export default class PathfindingVisualizer extends Component {
 
     // Reset all walls/visited nodes
     reset() {
+        // Cannot reset if animation is active
         if (this.state.animationIsActive) return;
+        // Allow the change of the grid again
         this.setState({canChangeGrid: true});
         // Because of changing classnames of DOM-elements, we have to reset their names
         const actualGrid = this.state.grid;
@@ -123,13 +128,12 @@ export default class PathfindingVisualizer extends Component {
     }
 
     onMouseDown(row, col) {
+        // Cannot change layout of grid if animation is active or reset has not been pushed
         if (this.state.animationIsActive || !this.state.canChangeGrid) {
             return;
         }
-        else {
-            const newGrid = getGridWithWalls(this.state.grid, row, col);
+        const newGrid = getGridWithWalls(this.state.grid, row, col);
         this.setState({grid: newGrid, mousePressed: true});
-        }
     }
 
     onMouseEnter(row, col) {
@@ -143,6 +147,9 @@ export default class PathfindingVisualizer extends Component {
     }
 
     lockInterfaceInAnimation(visitedNodesInOrder, shortestPath) {
+        // animationIsActive makes sure we cannot change the grid layout mid-animation
+        // canChangeGrid makes sure we cannot change grid post-animation; we have to press
+        // the reset button in order to be able to change the grid again.
         this.setState({animationIsActive: true, canChangeGrid: false});
         // Timeout in milliseconds will correspond to 65ms (15ms + 50ms) after
         // shortest path has been animated (added extra second to make sure all
@@ -154,8 +161,6 @@ export default class PathfindingVisualizer extends Component {
 
 
     render() {
-        console.log(document.getElementById("body").offsetWidth);
-        console.log(document.getElementById("body").offsetHeight);
         //Extract list of nodes currently in the grid
         const {grid, mousePressed} = this.state;
         /*
@@ -166,10 +171,12 @@ export default class PathfindingVisualizer extends Component {
         */
         return (
             <>
-                <button onClick={() => this.visualizeDijkstras()}>
-                    Visualize Dijkstra's Algorithm
-                </button>
-                <button className="reset" onClick={() => this.reset()}>Reset</button>
+                <div id={"menu"}>
+                    <button onClick={() => this.visualizeDijkstras()}>
+                        Visualize Dijkstra's Algorithm
+                    </button>
+                    <button className="reset" onClick={() => this.reset()}>Reset</button>
+                </div>
                 <div className="grid">
                     {grid.map((row, rowIndex) => {
                         return (
@@ -245,12 +252,27 @@ function createNode(row, col) {
 function getGridWithWalls(grid, row, col) {
     const copyGrid = grid.slice();
     const node = copyGrid[row][col];
-    const copyNode = {
+    copyGrid[row][col] = {
         ...node,
         isWall: !node.isWall,
     };
-    copyGrid[row][col] = copyNode;
     return copyGrid;
+}
+
+/*
+    TODO: Implement functionality for calculating number of rows/cols based on screen width/height
+    Fixed ratio for menu and grid? I.e. menu takes up 20% of height, grid rest? Maybe
+ */
+function calculateRowsAndCols(screenWidth, screenHeight) {
+    if (screenWidth <= 1280 && screenHeight <= 590) {
+        return [18, 53];
+    }
+    else if (screenWidth <= 1920 && screenHeight <= 940) {
+        return [30, 76];
+    }
+    else { //Assume max screen size and resolution is 2560x1440 and size = 27"
+        return [32, 81];
+    }
 }
 
 /*

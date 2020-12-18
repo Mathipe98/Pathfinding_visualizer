@@ -1,0 +1,10 @@
+Things that can be implemented:
+-Drag & Drop start/finish nodes
+    *Instant visual update on shortest path and visited nodes
+-Implementation of other algorithms
+    *First A*-algorithm
+    *Find others after that
+-Create buttons so you can choose between algorithms
+-Make a pretty menu (update CSS)
+-Update animations to make them your own
+-Add different kind of walls? Find ideas
