@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import Node from "./Node/Node";
 import "./PathfindingVisualizer.css";
 import { visualizeAlgorithm } from "../algorithms/visualizingFunctions";
+import { act } from "react-dom/test-utils";
 
 const rowsAndCols = calculateRowsAndCols();
 //console.log(`Body width: ${body.offsetWidth}. Body height: ${body.offsetHeight}`);
@@ -42,8 +43,6 @@ export default class PathfindingVisualizer extends Component {
         console.log(this.state.canChangeGrid);
         if (!this.state.canChangeGrid) return;
         const {grid, currentAlgorithm} = this.state;
-        console.log("Hello did we get here wtf");
-        debugger;
         // Outsourced visualizing to clean up this file
         const timerLists = visualizeAlgorithm(grid, currentAlgorithm, START_ROW, START_COL, FINISH_ROW, FINISH_COL);
         this.lockInterfaceInAnimation(timerLists[0], timerLists[1]); //visitedNodesInOrder, shortestPath
@@ -93,8 +92,13 @@ export default class PathfindingVisualizer extends Component {
 
     // Set state-variable to know which algorithm to visualize
     setAlgorithmOnClick(algorithm) {
+        console.log(`Animation active: ${this.state.animationIsActive}. Can change grid: ${this.state.canChangeGrid}`);
         if (this.state.animationIsActive || !this.state.canChangeGrid) return;
-        this.setState({currentAlgorithm: algorithm});
+        else {
+            console.log("Why the hell are we getting here?");
+            highlightButtons(algorithm);
+            this.setState({currentAlgorithm: algorithm});
+        }
     }
 
     lockInterfaceInAnimation(visitedNodesInOrder, shortestPath) {
@@ -145,11 +149,11 @@ export default class PathfindingVisualizer extends Component {
                     <button className="menuButton" onClick={() => this.reset()}>
                         Reset
                     </button>
-                    <button className="menuButton" onClick={() => this.setAlgorithmOnClick("Astar")} >
-                        A*
-                    </button>
-                    <button className="menuButton" onClick={() => this.setAlgorithmOnClick("Dijkstra")}>
+                    <button className="algoButton active" id="Dijkstra" onClick={() => this.setAlgorithmOnClick("Dijkstra")}>
                         Dijkstra's
+                    </button>
+                    <button className="algoButton" id="Astar" onClick={() => this.setAlgorithmOnClick("Astar")} >
+                        A*
                     </button>
                     <button className="menuButton" onClick={() => this.generateRandomMaze(grid)}>
                         Generate random maze
@@ -260,3 +264,22 @@ function calculateRowsAndCols() {
         return [Math.floor((screenHeight - 241) / 24), Math.floor(screenWidth / 24)];
     }
 }
+
+// Directly access the DOM-elements with id/className instead of adding
+// eventListener-functions because those functions cannot take into account
+// that the animation is ongoing or that the grid hasn't reset
+function highlightButtons(id) {
+    const activeButton = document.getElementsByClassName("active")[0];
+    activeButton.className = activeButton.className.replace(" active", "");
+    document.getElementById(id).className += " active";
+}
+
+/*
+for (var i = 0; i < btns.length; i++) {
+        btns[i].addEventListener("click", function() {
+            var current = document.getElementsByClassName("active");
+            current[0].className = current[0].className.replace(" active", "");
+            this.className += " active";
+        });
+    }
+*/

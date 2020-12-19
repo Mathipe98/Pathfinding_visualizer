@@ -6,7 +6,8 @@
   margin: 0;
 }
 
-.menuButton {
+.menuButton,
+.algoButton {
   box-shadow: 0px 1px 0px 0px #f0f7fa;
   background: linear-gradient(to bottom, #33bdef 5%, #019ad2 100%);
   background-color: #33bdef;
@@ -18,14 +19,21 @@
   font-family: Arial;
   font-size: 15px;
   font-weight: bold;
-  padding: 24px 24px;
+  padding: 15px 15px;
   text-decoration: none;
   text-shadow: 0px -1px 6px #5b6178;
   outline: none;
 }
+
 .menuButton:hover {
   background: linear-gradient(to bottom, #019ad2 5%, #33bdef 100%);
   background-color: #019ad2;
+}
+
+.algoButton:hover,
+.active {
+  background: linear-gradient(to bottom, #11b1fc 5%, #d3dcdf 100%);
+  background-color: #3a87a3;
 }
 
 /*
@@ -63,7 +71,7 @@
 
 /*
   In case I need it for later:
-    1920x1080 15.6" Laptop: max-width = 1280px
-    1920x1080 27" monitor: max-width = 1920px
-    2560x1440 27" monitor: max-width = 2048px
+    1920x1080 15.6" Laptop: max-width = 1280px, max-height: 578px
+    1920x1080 27" monitor: max-width = 1920px, max-height: 940px
+    2560x1440 27" monitor: max-width = 2048px, max-height: 1100px
 */

@@ -1,13 +1,18 @@
 Things that can be implemented:
+
 -Implementation of other algorithms
-    *First A*-algorithm
+    *First A*-algorithm (CHECK)
     *Find others after that
+
 -Drag & Drop start/finish nodes
     *Instant visual update on shortest path and visited nodes
--Create buttons so you can choose between algorithms
+
+-Create buttons so you can choose between algorithms (CHECK)
+
 -Make a pretty menu (update CSS)
+
 -Update animations to make them your own
+
 -Add different kind of walls? Find ideas
+
 -SPLIT THE SCREEN: compare two algorithms to each other
-Start with A* so that changing algorithms and visualizing them
-becomes more structured.
