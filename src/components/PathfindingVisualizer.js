@@ -142,6 +142,10 @@ export default class PathfindingVisualizer extends Component {
         */
         return (
             <>
+                <div id="infoSheet">
+                    <div className="boxclose" onClick={() => removeInfoSheet()}></div>
+                    {getText()}
+                </div>
                 <div id={"menu"}>
                     <button className="menuButton" onClick={() => this.visualizeAlgorithm()}>
                         Visualize
@@ -195,6 +199,26 @@ export default class PathfindingVisualizer extends Component {
             </>
         );
     }
+}
+
+function getText() {
+    const text = `
+    Hello! And welcome to my Pathfinding-visualizer app!\n
+    This app visualizes algorithms that find shortest paths between two points.\n
+    You can choose between A* or Dijkstra (currently, but more will be implemented).
+    You can press the squares on your screen to make walls that cannot be passed through.
+    You can also hold down your mouse and drag it across the screen to make several in one go!
+    If you want to visualize how the algorithm finds the shortest path, simply click visualize! :)
+    You can reset the grid by pressing the reset-button, or generate a random maze (just random
+    walls) by pressing the generate-button. Have fun!
+    \n\n
+    Source code can be found at https://github.com/mathipe98
+    `;
+    return text;
+}
+
+function removeInfoSheet() {
+    document.getElementById("infoSheet").remove();
 }
 
 
