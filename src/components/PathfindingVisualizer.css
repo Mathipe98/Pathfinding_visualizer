@@ -6,20 +6,49 @@
   margin: 0;
 }
 
-@media /*(max-width: 1280px) and*/ (max-height: 590px) {
+.menuButton {
+  box-shadow: 0px 1px 0px 0px #f0f7fa;
+  background: linear-gradient(to bottom, #33bdef 5%, #019ad2 100%);
+  background-color: #33bdef;
+  /*border-radius: 10px;*/
+  border: 1px solid #057fd0;
+  display: inline-block;
+  cursor: pointer;
+  color: #ffffff;
+  font-family: Arial;
+  font-size: 15px;
+  font-weight: bold;
+  padding: 24px 24px;
+  text-decoration: none;
+  text-shadow: 0px -1px 6px #5b6178;
+  outline: none;
+}
+.menuButton:hover {
+  background: linear-gradient(to bottom, #019ad2 5%, #33bdef 100%);
+  background-color: #019ad2;
+}
+
+/*
+  If the screen (height) is smaller, adjust the size of the menu accordingly
+  This is for 1920x1080 with 15.6" screen
+  Note that resolution != pixels in the browser. I have no idea why, but
+  it do be like dat sometimes
+*/
+@media (max-height: 590px) {
   #menu {
-    height: 120px;
+    height: 144px;
   }
 }
 
-
-@media /*(max-width: 1920px) and (min-width: 1281px) and*/ (min-height: 591px) and (max-height: 940px){
+/* 1920x1080 27" monitor */
+@media (min-height: 591px) and (max-height: 940px) {
   #menu {
     height: 217px;
   }
 }
 
-@media /*(max-width: 2048px) and (min-width: 1921px) and*/ (min-height: 941px) and (max-height: 1100px){
+/* 2560x1440 27" monitor */
+@media (min-height: 941px) and (max-height: 1100px) {
   #menu {
     height: 241px;
   }
@@ -31,3 +60,10 @@
   width: 100%;
   overflow: hidden;
 }
+
+/*
+  In case I need it for later:
+    1920x1080 15.6" Laptop: max-width = 1280px
+    1920x1080 27" monitor: max-width = 1920px
+    2560x1440 27" monitor: max-width = 2048px
+*/

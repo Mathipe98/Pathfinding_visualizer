@@ -1,8 +1,8 @@
 /* 15.6" laptop with resolution 1920x1080 will have
-width = 1280px and height = 576.
+width = 1280px and height = 578.
 These are the lowest max-width/max-height values that
 adjust for this. I have no idea why height has to be 578,
-and why the browser renders in 1280x576 instead of 1920x1080
+and why the browser renders in 1280x578 instead of 1920x1080
 makes absolutely no sense. But oh well.
 I set the height to be 590px just for good measure, although
 the lowest value that will work is 578px.

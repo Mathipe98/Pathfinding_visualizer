@@ -1,12 +1,10 @@
 import React, {Component} from "react";
-import Node from "./Node";
+import Node from "./Node/Node";
 import "./PathfindingVisualizer.css";
-import {dijkstraSearch, getShortestPath} from "../algorithms/dijkstra.js";
-//import { act } from "react-dom/test-utils";
+import { visualizeAlgorithm } from "../algorithms/visualizingFunctions";
 
-const body = document.getElementById("body");
-const rowsAndCols = calculateRowsAndCols(body.offsetWidth, body.offsetHeight);
-console.log(`Body width: ${body.offsetWidth}. Body height: ${body.offsetHeight}`);
+const rowsAndCols = calculateRowsAndCols();
+//console.log(`Body width: ${body.offsetWidth}. Body height: ${body.offsetHeight}`);
 console.log(`Number of rows: ${rowsAndCols[0]}. Number of cols: ${rowsAndCols[1]}`);
 const rows = rowsAndCols[0];
 const cols = rowsAndCols[1];
@@ -20,6 +18,7 @@ export default class PathfindingVisualizer extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            currentAlgorithm: 'Dijkstra',
             grid: [],
             mousePressed: false,
             animationIsActive: false,
@@ -33,76 +32,21 @@ export default class PathfindingVisualizer extends Component {
     */
     componentDidMount() {
         const grid = createGrid();
-        //console.log(`Dijkstra result: ${shortestPath}`)
         //State of the grid will be the list of nodes in the grid
         this.setState({grid});
     }
 
     // Function called when a button is clicked to visualize the result of
     // the pathfinding algorithm. Performed by calling to other helper-functions
-    visualizeDijkstras() {
+    visualizeAlgorithm() {
+        console.log(this.state.canChangeGrid);
         if (!this.state.canChangeGrid) return;
-        const {grid} = this.state;
-        const startNode = grid[START_ROW][START_COL];
-        const finishNode = grid[FINISH_ROW][FINISH_COL];
-        const visitedNodesInOrder = dijkstraSearch(grid, startNode, finishNode);
-        const shortestPath = getShortestPath(finishNode);
-        this.animateDijkstras(visitedNodesInOrder, shortestPath);
-        this.lockInterfaceInAnimation(visitedNodesInOrder, shortestPath);
-    }
-
-    /* NOTE 1
-        The way we animate the pathfinder-algorithm, is to have
-        an array of visited nodes, and create a copy of the existing
-        grid every time we iterate through a visited node.
-        This is as an external function that sets a timeout every time
-        a node is iterated, instead of being taken care of inside of
-        the render function. We iterate through all visited nodes, and
-        for each node, we create a copy grid, and a copy node.
-        We replace the existing node in the copy grid, with the
-        copy node that has updated its isVisited-state.
-        We pass in the copy grid as the new state of the React-component,
-        and set a timeout. Therefore, the state will update itself with
-        an interval of the timeout-value, which will be perceived as
-        individual boxes changing their layouts because every state-update
-        changes a single node. 
-    */
-   /* NOTE 2
-        The aforementioned approach worked, however it was extremely slow and tedious.
-        The new approach changes the classnames of the DOM-elements directly, instead of
-        updating state (triggering re-render several times a second, which takes too much time).
-        This is bad practice, but for this purpose it works just fine, and is a lot quicker.
-        It also works easily because a node can only be in one of five states:
-        start, finish, visited, wall, or shortest-path. Therefore we can update them without issues.
-   */
-    animateDijkstras(visitedNodesInOrder, shortestPath) {
-        for (let i = 0; i <= visitedNodesInOrder.length; i++) {
-            if (i === visitedNodesInOrder.length) {
-                setTimeout(() => {
-                    this.animateShortestPath(shortestPath);
-                }, 15 * i);
-                return;
-            }
-            else {
-                setTimeout(() => {
-                    const node = visitedNodesInOrder[i];
-                   if (!node.isStart) {
-                       document.getElementById(`node-${node.row}-${node.col}`).className = 'node node-visited';
-                   }
-                }, 15 * i);
-            }
-        }
-    }
-
-    animateShortestPath(shortestPath) {
-        for (let i = 0; i < shortestPath.length; i++) {
-            setTimeout(() => {
-                const node = shortestPath[i];
-                if (!node.isFinish) {
-                    document.getElementById(`node-${node.row}-${node.col}`).className = 'node node-shortest-path';
-                }
-            }, 50 * i)
-        }
+        const {grid, currentAlgorithm} = this.state;
+        console.log("Hello did we get here wtf");
+        debugger;
+        // Outsourced visualizing to clean up this file
+        const timerLists = visualizeAlgorithm(grid, currentAlgorithm, START_ROW, START_COL, FINISH_ROW, FINISH_COL);
+        this.lockInterfaceInAnimation(timerLists[0], timerLists[1]); //visitedNodesInOrder, shortestPath
     }
 
     // Reset all walls/visited nodes
@@ -143,7 +87,14 @@ export default class PathfindingVisualizer extends Component {
     }
 
     onMouseUp() {
+        if (this.state.animationIsActive || !this.state.canChangeGrid) return;
         this.setState({mousePressed: false});
+    }
+
+    // Set state-variable to know which algorithm to visualize
+    setAlgorithmOnClick(algorithm) {
+        if (this.state.animationIsActive || !this.state.canChangeGrid) return;
+        this.setState({currentAlgorithm: algorithm});
     }
 
     lockInterfaceInAnimation(visitedNodesInOrder, shortestPath) {
@@ -151,12 +102,28 @@ export default class PathfindingVisualizer extends Component {
         // canChangeGrid makes sure we cannot change grid post-animation; we have to press
         // the reset button in order to be able to change the grid again.
         this.setState({animationIsActive: true, canChangeGrid: false});
-        // Timeout in milliseconds will correspond to 65ms (15ms + 50ms) after
-        // shortest path has been animated (added extra second to make sure all
-        // animations are finished)
         setTimeout(() => {
             this.setState({animationIsActive: false});
         }, 15 * (visitedNodesInOrder.length + 1) + 50 * (shortestPath.length + 1) + 1000);
+    }
+
+    generateRandomMaze(grid) {
+        if (!this.state.canChangeGrid) return;
+        const copyGrid = grid.slice();
+        for (let i = 0; i < copyGrid.length; i++) {
+            for (let j = 0; j < copyGrid[i].length; j++) {
+                const node = copyGrid[i][j];
+                if (node.isStart || node.isFinish) continue;
+                const randomNumber = Math.floor(Math.random() * 10);
+                if (randomNumber < 3) {
+                    copyGrid[i][j] = {
+                        ...node,
+                        isWall: !node.isWall,
+                    };
+                }
+            }
+        }
+        this.setState({grid: copyGrid});
     }
 
 
@@ -172,10 +139,21 @@ export default class PathfindingVisualizer extends Component {
         return (
             <>
                 <div id={"menu"}>
-                    <button onClick={() => this.visualizeDijkstras()}>
-                        Visualize Dijkstra's Algorithm
+                    <button className="menuButton" onClick={() => this.visualizeAlgorithm()}>
+                        Visualize
                     </button>
-                    <button className="reset" onClick={() => this.reset()}>Reset</button>
+                    <button className="menuButton" onClick={() => this.reset()}>
+                        Reset
+                    </button>
+                    <button className="menuButton" onClick={() => this.setAlgorithmOnClick("Astar")} >
+                        A*
+                    </button>
+                    <button className="menuButton" onClick={() => this.setAlgorithmOnClick("Dijkstra")}>
+                        Dijkstra's
+                    </button>
+                    <button className="menuButton" onClick={() => this.generateRandomMaze(grid)}>
+                        Generate random maze
+                    </button>
                 </div>
                 <div className="grid">
                     {grid.map((row, rowIndex) => {
@@ -235,15 +213,18 @@ function createGrid() {
 function createNode(row, col) {
     const isStart = (row === START_ROW && col === START_COL);
     const isFinish = (row === FINISH_ROW && col === FINISH_COL);
+    const manDistance = Math.abs(row - FINISH_ROW) + Math.abs(col - FINISH_COL);
     const currentNode = {
         row,
         col,
-        isStart: isStart,
-        isFinish: isFinish,
+        isStart,
+        isFinish,
         isVisited: false,
         isWall: false,
         distance: isStart ? 0 : Infinity,
         cost: 1,
+        manDistance,
+        total: isStart ? 0 : Infinity,
         predecessor: null,
     };
     return currentNode;
@@ -259,42 +240,23 @@ function getGridWithWalls(grid, row, col) {
     return copyGrid;
 }
 
-/*
-    TODO: Implement functionality for calculating number of rows/cols based on screen width/height
-    Fixed ratio for menu and grid? I.e. menu takes up 20% of height, grid rest? Maybe
- */
-function calculateRowsAndCols(screenWidth, screenHeight) {
+// Calculates how many nodes will appear according to screen size
+function calculateRowsAndCols() {
+    const screen = document.getElementById("body");
+    const screenWidth = screen.offsetWidth;
+    const screenHeight = screen.offsetHeight;
     if (screenWidth <= 1280 && screenHeight <= 590) {
-        return [18, 53];
+        // Reduce height by 144px since this is the height of the menu
+        // gridHeight = bodyHeight - menuHeight. Ref: PathfindingVisualizer.css
+        return [Math.floor((screenHeight - 144) / 24), Math.floor(screenWidth / 24)];
     }
     else if (screenWidth <= 1920 && screenHeight <= 940) {
-        return [30, 76];
+        // menuHeight = 217px
+        return [Math.floor((screenHeight - 217) / 24), Math.floor(screenWidth / 24)];
+        //return [30, 76];
     }
     else { //Assume max screen size and resolution is 2560x1440 and size = 27"
-        return [32, 81];
+        // menuHeight = 241px
+        return [Math.floor((screenHeight - 241) / 24), Math.floor(screenWidth / 24)];
     }
 }
-
-/*
-const initializeGrid = () => {
-        //Create a grid-array with a set length
-        const grid = new Array(rows);
-
-        //Add a new list to each index, such that grid[i][j] = node at row i, column j
-        /*
-            [         COLUMN
-                i = 0 [j = 0, j = 1, j = 2, ...], ROW
-                i = 1 [j = 0, j = 1, j = 2, ...]
-            ]
-        
-       for (let i = 0; i < rows; i++) {
-        grid[i] = new Array(cols);
-    }
-
-    for (let i = 0; i < rows; i++) {
-        for (let j = 0; j < cols; i++) {
-            grid[i][j] = new Spot(i, j);
-        }
-    }
-}
-*/
