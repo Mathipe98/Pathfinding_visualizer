@@ -8,6 +8,7 @@
 
 .node-finish {
   background-color: red;
+  cursor: grab;
 }
 
 .node-start {
@@ -15,7 +16,8 @@
   cursor: grab;
 }
 
-.node-start:active {
+.node-start:active,
+.node-finish:active {
   cursor: grabbing;
 }
 

@@ -22,10 +22,14 @@ function dijkstraSearch(grid, startNode, finishNode) {
     // equivalent to (queue && queue.length)
     while (queue?.length) {
         //debugger;
+        queue.sort((n1, n2) => n1.distance - n2.distance);
+        
 
         
         // Because of the sorting, this node is guaranteed to have the lowest distance
         const currentNode = queue.shift();
+        //debugger;
+        console.log(currentNode);
 
         // If a wall is encountered, skip the node
         if (currentNode.isWall) continue;
@@ -47,7 +51,6 @@ function dijkstraSearch(grid, startNode, finishNode) {
         for (let neighbour of currentNeighbours) {
             relax(currentNode, neighbour);
         }
-        queue.sort((n1, n2) => n1.distance - n2.distance);
     }
 }
 

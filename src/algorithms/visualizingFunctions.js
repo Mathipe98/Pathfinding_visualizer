@@ -42,6 +42,14 @@ function visualizeAlgorithm(grid, currentAlgorithm, START_ROW, START_COL, FINISH
     It also works easily because a node can only be in one of five states:
     start, finish, visited, wall, or shortest-path. Therefore we can update them without issues.
 */
+/* NOTE 3
+    Instead of referring directly to the DOM-element, one could instead use ReactRef.
+    However, that would imply that all of these functions would need to be implemented
+    in PathfinderVisualizer.js instead of this file, all inside the main React-component.
+    It would be better from a practice point-of-view, but would make the main file more
+    cluttered. Since this is a low scale project, referring directly to the DOM works fine,
+    so we will keep it like this for now.
+*/
 function animateAlgorithm(visitedNodesInOrder, shortestPath) {
     for (let i = 0; i <= visitedNodesInOrder.length; i++) {
         if (i === visitedNodesInOrder.length) {

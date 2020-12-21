@@ -72,7 +72,7 @@
   overflow: hidden;
 }
 
-#infoSheet {
+.infoSheet {
   position: absolute;
   top: 70px;
   left: 800px;

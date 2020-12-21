@@ -11,7 +11,6 @@ export const aStar = function (grid, startNode, finishNode) {
         const currentNode = openList.shift();
         // Push nodes for visualizing
         visitedNodesInOrder.push(currentNode);
-        console.log(currentNode);
         closedList.push(currentNode);
 
         // If one is true, then both are. Redundant, but just to be sure
@@ -49,16 +48,4 @@ export const aStar = function (grid, startNode, finishNode) {
     }
     // If we end up here, then the goal is unreachable. Therefore return visited nodes
     return visitedNodesInOrder;
-}
-
-
-// Check if a node is null, visited, or a wall
-function checkNode(node) {
-    if (node === null) {
-        return false;
-    }
-    if (node.isWall) {
-        return false;
-    }
-    return true;
 }
